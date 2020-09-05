@@ -1,0 +1,55 @@
+# Manifest doc https://docs.flatpak.org/en/latest/flatpak-builder-command-reference.html#flatpak-manifest
+# Sample electron app: https://github.com/flathub/electron-sample-app/blob/master/flatpak/org.flathub.electron-sample-app.yml
+app-id: net.nehbit.AetherClient
+base: org.electronjs.Electron2.BaseApp
+base-version: '19.08'
+runtime: org.freedesktop.Platform
+runtime-version: '19.08'
+sdk: org.freedesktop.Sdk
+command: aether.sh
+
+finish-args:
+  - --socket=x11
+  - --share=ipc
+  - --share=network
+
+modules:
+
+  - name: nodejs
+    buildsystem: simple
+    build-commands:
+      - "tar xvf node.tar.xz"
+      - cp -ra node*/* /app
+    sources:
+      - type: file
+        dest-filename: node.tar.xz
+        url: https://nodejs.org/dist/v11.15.0/node-v11.15.0-linux-x64.tar.xz
+        sha256: 17424aef198fa322b93c79217ce7e8cdd264fed40383abbbd3e63c305ce1d7d8
+
+  - name: aether
+    buildsystem: simple
+    sources:
+      - type: git
+        dest: aether
+        url: https://github.com/nehbit/aether
+        commit: 4cae653fc324fa19d6bff9e9f8101139dfccae89
+      - generated-sources.json
+      - type: file
+        path: package.json
+      - type: file
+        path: package-lock.json
+      - type: script
+        dest-filename: aether.sh
+        commands:
+          - npm start --prefix=/app/aether-client
+    build-commands:
+      # Compile instructions: https://gist.github.com/nehbit/4a8c3d81d543e85c9df974f521732b1e
+#      - cp -a aether-core/aether/client /app/aether-client
+      - cp -a aether /app/aether
+      - cp package.json /app/aether/aether-core/aether/client
+      - cp package-lock.json /app/aether/aether-core/aether/client
+      - npm --prefix=/app/aether/aether-core/aether/client --cache /run/build/aether/flatpak-node/npm-cache --offline --production install
+      - npm --prefix=/app/aether/aether-core/aether/client --cache /run/build/aether/flatpak-node/npm-cache run wpbuild
+      - npm --prefix=/app/aether/aether-core/aether/client --cache /run/build/aether/flatpak-node/npm-cache run rebuild
+      - install -D aether.sh /app/bin/aether.sh
+

@@ -1,0 +1,6 @@
+# Flatpak build dirs
+build-dir/
+.flatpak-builder/
+
+# Swap files
+*.swp

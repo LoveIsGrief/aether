@@ -29,15 +29,10 @@ modules:
   - name: aether
     buildsystem: simple
     sources:
-      - type: git
-        dest: aether
-        url: https://github.com/nehbit/aether
-        commit: 4cae653fc324fa19d6bff9e9f8101139dfccae89
-      - generated-sources.json
-      - type: file
-        path: package.json
-      - type: file
-        path: package-lock.json
+      - type: dir
+        path: ../aether-core/aether/client
+        dest: aether-client
+      - ../aether-core/aether/client/generated-sources.json
       - type: script
         dest-filename: aether.sh
         commands:
@@ -45,11 +40,9 @@ modules:
     build-commands:
       # Compile instructions: https://gist.github.com/nehbit/4a8c3d81d543e85c9df974f521732b1e
 #      - cp -a aether-core/aether/client /app/aether-client
-      - cp -a aether /app/aether
-      - cp package.json /app/aether/aether-core/aether/client
-      - cp package-lock.json /app/aether/aether-core/aether/client
-      - npm --prefix=/app/aether/aether-core/aether/client --cache /run/build/aether/flatpak-node/npm-cache --offline --production install
-      - npm --prefix=/app/aether/aether-core/aether/client --cache /run/build/aether/flatpak-node/npm-cache run wpbuild
-      - npm --prefix=/app/aether/aether-core/aether/client --cache /run/build/aether/flatpak-node/npm-cache run rebuild
+      - cp -a aether-client /app/
+      - npm --prefix=/app/aether-client --cache /run/build/aether/flatpak-node/npm-cache --offline --production install
+      - npm --prefix=/app/aether-client --cache /run/build/aether/flatpak-node/npm-cache run wpbuild
+      - npm --prefix=/app/aether-client --cache /run/build/aether/flatpak-node/npm-cache run rebuild
       - install -D aether.sh /app/bin/aether.sh
 
